@@ -1,0 +1,50 @@
+{
+  "source_version": 283591,
+  "buckets": 51,
+  "records": 1971,
+  "events": 1963,
+  "kinds": {
+    "timed": 1629,
+    "date-only": 333,
+    "all-day": 1
+  },
+  "duplicate_paths": 0,
+  "skipped": [
+    {
+      "record": "1/4bfg8hnflylz",
+      "reason": "Missing date or event name"
+    },
+    {
+      "record": "1/7iirtkz65gnd",
+      "reason": "Missing date or event name"
+    },
+    {
+      "record": "1/8fo79drsgngq",
+      "reason": "Missing date or event name"
+    },
+    {
+      "record": "1/auu0s0o20woi",
+      "reason": "Missing date or event name"
+    },
+    {
+      "record": "1/boeooh48e571",
+      "reason": "Missing date or event name"
+    },
+    {
+      "record": "1/d67dpnlwur8d",
+      "reason": "Missing date or event name"
+    },
+    {
+      "record": "1/hrk8qk56rxn2",
+      "reason": "Missing date or event name"
+    },
+    {
+      "record": "1/vnucy6ko3rvo",
+      "reason": "Missing date or event name"
+    }
+  ],
+  "date_range": [
+    "20250101",
+    "20270201"
+  ]
+}

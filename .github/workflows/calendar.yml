@@ -1,0 +1,72 @@
+name: Rebuild and publish calendar
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      allow_large_drop:
+        description: 'Accept a reviewed drop of more than 20% (empty feeds still rejected)'
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: calendar-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      pages: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      page_url: ${{ steps.pages.outputs.base_url }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install independent validation dependency
+        run: python -m pip install --disable-pip-version-check --timeout 30 -r requirements-test.txt
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Fetch full snapshot and rebuild
+        env:
+          PREVIOUS_BASE_URL: ${{ steps.pages.outputs.base_url }}
+          ALLOW_LARGE_DROP: ${{ inputs.allow_large_drop }}
+        shell: bash
+        run: |
+          args=(--previous-base-url "$PREVIOUS_BASE_URL")
+          if [[ "$ALLOW_LARGE_DROP" == "true" ]]; then
+            args+=(--allow-large-drop)
+          fi
+          python calendar_feed.py "${args[@]}"
+      - name: Validate complete generated feed
+        run: python tools/validate_feed.py public
+      - name: Upload validated feed
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: public
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v4
